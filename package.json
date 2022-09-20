@@ -1,0 +1,25 @@
+{
+  "name": "project-booksmanagementgroup14",
+  "version": "1.0.0",
+  "description": "Project is about Books Management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/himanshu4327/project-booksManagementGroup14.git"
+  },
+  "author": "Group14",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/himanshu4327/project-booksManagementGroup14/issues"
+  },
+  "homepage": "https://github.com/himanshu4327/project-booksManagementGroup14#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.6.1",
+    "nodemon": "^2.0.20"
+  }
+}
