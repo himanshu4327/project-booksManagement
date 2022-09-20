@@ -38,17 +38,17 @@ const createuser = async function (req, res) {
         let data = req.body
         if (!isValidRequest(data)) { return res.status(400).send({ status: false, message: "user data is required" })}
     const { title, name, phone, email, password } = data;
-    if (Object.keys(data).length > 6) {
+    if (Object.keys(data).length > 0) {
         return res.status(400).send({ status: false, message: "invalid data entry inside request body" })
       }
       if (!isValid(title)) { return res.status(400).send({ status: false, message: "title is required" })}
-      if (!(title.trim()== 'Mr' || title.trim()== 'Miss' || title.trim()== 'Mrs')) { return res.status(400).send({ status: false, message: 'Please inter valid title' }) }
+      if (!(title.trim()== 'Mr' || title.trim()== 'Miss' || title.trim()== 'Mrs')) { return res.status(400).send({ status: false, message: 'Please enter valid title' }) }
       
       if (!isValid(name) || !regixValidator(name)) {return res.status(400).send({ status: false, message: "name is required and its should contain character" }) }
       
       
       if (!isValid(phone)) { return res.status(400).send({status: false, message: "phone number is required"})}
-      if(!isValidphone(phone)) {return res.status(400).send({status: false, message: "please inter right phone number"})}
+      if(!isValidphone(phone)) {return res.status(400).send({status: false, message: "please enter right phone number"})}
 
       let isPhoneUnique = await userModel.findOne({phone: phone})
       if (isPhoneUnique) {return res.status(400).send({status: false, message: "phone number already exist"})}
@@ -96,7 +96,7 @@ const login = async function (req,res) {
          //creating a jsonWebToken and sending it to responce header and body
 
          let token = jwt.sign({
-            userId: userName._id.toString()
+            userId: user._id.toString()
           },
             "group14project3"
           );
