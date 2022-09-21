@@ -78,7 +78,8 @@ Returns a book with complete details including reviews. Reviews array would be i
 Return the HTTP status 200 if any documents are found. The response structure should be like this
 If the book has no reviews then the response body should include book detail as shown here and an empty array for reviewsData.
 If no documents are found then return an HTTP status 404 with a response like this
-PUT /books/:bookId
+
+# PUT /books/:bookId
 Update a book by changing its
 title
 excerpt
@@ -124,7 +125,7 @@ In case of unauthorized access return an appropirate error message.
 
 
 # Testing
-To test these apis create a new collection in Postman named Project 4 Books Management
+To test these apis create a new collection in Postman named Project 3 Books Management
 Each api should have a new request in this collection
 Each request in the collection should be rightly named. Eg Create user, Create book, Get books etc
 Each member of each team should have their tests in running state
