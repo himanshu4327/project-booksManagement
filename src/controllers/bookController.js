@@ -4,10 +4,11 @@ const bookModel = require('../Models/bookModel.js')
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Validation Function>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 const isValid = function (value) {
-    if (typeof (value) === undefined || typeof (value) === null) { return false }
-    if (value.trim().length == 0) { return false }
-    if (typeof (value) === "string" && value.trim().length > 0) { return true }
-}
+    if (typeof value === "undefined" || value === null) return false;
+    if (typeof value === "string" && value.trim().length > 0) return true;
+    return false;
+  };
+  
 
 const isValidISBN = function (value) {
     return  /^[6-9]{3}[\-][\d]{10}$/.test(value);

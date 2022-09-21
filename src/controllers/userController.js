@@ -4,6 +4,14 @@ const jwt = require("jsonwebtoken")
 
 //**************************************VALIDATION FUNCTIONS****************************** */
 
+const isValid = function (value) {
+    if (typeof value === "undefined" || value === null) return false;
+    if (typeof value === "string" && value.trim().length > 0) return true;
+    return false;
+  };
+  
+
+
 const isValidEmail = function (value) {
     const regexForEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     return regexForEmail.test(value)
@@ -14,7 +22,7 @@ const isValidRequest = function (object) {
 
 
 const isValidPassword = function (password) {
-    if (/^[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password)) return true
+    return (/^[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password))
 }
 
 const isValidphone = function (phone) {
