@@ -1,5 +1,5 @@
-const userModel = require("../Models/userModel")
-const bookModel = require('../Models/bookModel.js')
+const userModel = require("../models/userModel")
+const bookModel = require('../models/bookModel')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Validation Function>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -7,11 +7,11 @@ const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
     if (typeof value === "string" && value.trim().length > 0) return true;
     return false;
-  };
-  
+};
+
 
 const isValidISBN = function (value) {
-    return  /^[6-9]{3}[\-][\d]{10}$/.test(value);
+    return /^[6-9]{3}[\-][\d]{10}$/.test(value);
 }
 
 const isValidObjectId = function (objectId) {
@@ -19,18 +19,18 @@ const isValidObjectId = function (objectId) {
 }
 
 const isValidReleasedAt = function (value) {
-    return /((\d{4}[\/-])(\d{2}[\/-])(\d{2}))/.test(value)
+    return /^\d{4}\-\d{1,2}\-\d{1,2}$/.test(value)
 }
 
 
 const createBooks = async function (req, res) {
     try {
         const data = req.body;
-        
+
         if (Object.keys(data) == 0) { return res.status(400).send({ status: false, message: 'please provided data' }) }
 
         if (!isValid(data.title)) { return res.status(400).send({ status: false, message: 'title is required' }) }
-        
+
         let isUniquetitle = await bookModel.findOne({ title: data.title })
         if (isUniquetitle) { return res.status(400).send({ status: false, message: 'title already exist' }) }
 
@@ -59,33 +59,41 @@ const createBooks = async function (req, res) {
 
         const newBook = await bookModel.create(data);
         return res.status(201).send({ status: true, message: 'success', data: newBook })
-}
-catch (error) {
-    console.log(error)
-    return res.status(500).send({ message: error.message })
-}
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).send({ message: error.message })
+    }
 }
 
 
 const getBooks = async function (req, res) {
     try {
         const queries = req.query;
+
         if (Object.keys(queries).length == 0) {
 
-            let data = await bookModel.find({ isDeleted: false }).select({ $sort: { title: 1 }, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+            let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
             if (data.length == 0) {
                 return res.status(404).send({ status: "false", message: "Sorry, Requested Data not Found." })
             } else {
+                data.sort((a, b) => a.title.localeCompare(b.title))
                 return res.status(200).send({ status: true, message: data });
             }
         } else {
-            let data1 = await bookModel.find({
-                $or: [{ userId: queries.userId }, { category: queries.category },
-                { subcategory: queries.subcategory }]
-            }).find({ isDeleted: false }).select({ $sort: { title: 1 }, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+            const { userId, category, subcategory } = queries
+            let obj = {
+                isDeleted: false
+
+            }
+            if (userId) obj.userId = userId
+            if (category) obj.category = category
+            if (subcategory) obj.subcategory = subcategory
+            let data1 = await bookModel.find(obj).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
             if (data1.length == 0) {
                 return res.status(404).send({ status: "false", message: "Sorry,Requested Data not Found." })
             } else {
+                data1.sort((a, b) => a.title.localeCompare(b.title))
                 return res.status(200).send({ status: true, message: data1 });
             }
         }

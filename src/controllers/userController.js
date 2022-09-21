@@ -1,4 +1,4 @@
-const userModel = require("../Models/userModel")
+const userModel = require("../models/userModel")
 const jwt = require("jsonwebtoken")
 
 
@@ -11,8 +11,7 @@ const isValid = function (value) {
   };
   
 
-
-const isValidEmail = function (value) {
+  const isValidEmail = function (value) {
     const regexForEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     return regexForEmail.test(value)
 }
@@ -29,7 +28,7 @@ const isValidphone = function (phone) {
     return /^[6-9]\d{9}$/.test(phone);
 }
 
-const regixValidator = function (value) {
+const isNameValid = function (value) {
     let regex = /^[a-zA-Z]+([\s][a-zA-Z]+)*$/
     return regex.test(value)
 }
@@ -45,7 +44,7 @@ const createuser = async function (req, res) {
         if (!isValid(title)) { return res.status(400).send({ status: false, message: "title is required" }) }
         if (!(title.trim() == 'Mr' || title.trim() == 'Miss' || title.trim() == 'Mrs')) { return res.status(400).send({ status: false, message: 'Please enter valid title' }) }
 
-        if (!isValid(name) || !regixValidator(name)) { return res.status(400).send({ status: false, message: "name is required and its should contain character" }) }
+        if (!isValid(name) || !isNameValid(name)) { return res.status(400).send({ status: false, message: "name is required and its should contain character" }) }
 
 
         if (!isValid(phone)) { return res.status(400).send({ status: false, message: "phone number is required" }) }

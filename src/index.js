@@ -7,9 +7,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-
-
-
 mongoose.connect("mongodb+srv://omkar077:BeEHI8wSohCTOfTl@cluster0.tyx7riv.mongodb.net/group14Database",
 
     {

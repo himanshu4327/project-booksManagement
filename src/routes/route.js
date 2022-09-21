@@ -9,5 +9,6 @@ const bookController = require("../controllers/bookController")
 router.post("/register", userController.createuser)
 router.post("/login", userController.login)
 router.post("/books", bookController.createBooks )
+router.get("/books", bookController.getBooks)
 
 module.exports = router;
