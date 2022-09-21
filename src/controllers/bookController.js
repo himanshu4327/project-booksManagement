@@ -73,9 +73,9 @@ const createBooks = async function (req, res) {
 const getBooks = async function (req, res) {
     try {
         const queries = req.query;
-        if (Object.keys(queries).length==0) {
+        if (Object.keys(queries).length == 0) {
 
-            let data = await bookModel.find({ isDeleted: false}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1})
+            let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
             if (data.length == 0) {
                 return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
             } else {
@@ -84,8 +84,8 @@ const getBooks = async function (req, res) {
         } else {
             let data1 = await bookModel.find({
                 $or: [{ userId: queries.userId }, { category: queries.category },
-             { subcategory: queries.subcategory }]
-            }).find({ isDeleted: false}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1});
+                { subcategory: queries.subcategory }]
+            }).find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 });
             if (data1.length == 0) {
                 return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
             } else {
