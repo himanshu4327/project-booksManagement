@@ -22,6 +22,8 @@ const isValidReleasedAt = function (value) {
     return /^\d{4}\-\d{1,2}\-\d{1,2}$/.test(value)
 }
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Create Book>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 const createBooks = async function (req, res) {
     try {
@@ -38,7 +40,7 @@ const createBooks = async function (req, res) {
 
         if (!isValid(data.userId)) { return res.status(400).send({ status: false, message: 'User Id is required' }) }
 
-        if (!isValidObjectId(data.userId)) { return res.status(400).send({ status: false, message: 'Please inter a valid userId' }) }
+        if (!isValidObjectId(data.userId)) { return res.status(400).send({ status: false, message: 'Please enter a valid userId' }) }
 
         let checkId = await userModel.findOne({ _id: data.userId })
         if (!checkId) { return res.status(400).send({ status: false, message: 'no user found, Please inter a valid User Id' }) }
@@ -66,51 +68,76 @@ const createBooks = async function (req, res) {
     }
 }
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get Book>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 const getBooks = async function (req, res) {
     try {
         const queries = req.query;
+        if (Object.keys(queries).length==0) {
 
-        if (Object.keys(queries).length == 0) {
-
-            let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+            let data = await bookModel.find({ isDeleted: false}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1})
             if (data.length == 0) {
-                return res.status(404).send({ status: "false", message: "Sorry, Requested Data not Found." })
+                return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
             } else {
-                data.sort((a, b) => a.title.localeCompare(b.title))
                 return res.status(200).send({ status: true, message: data });
             }
         } else {
-            const { userId, category, subcategory } = queries
-            let obj = {
-                isDeleted: false
-
-            }
-            if (userId) obj.userId = userId
-            if (category) obj.category = category
-            if (subcategory) obj.subcategory = subcategory
-            let data1 = await bookModel.find(obj).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+            let data1 = await bookModel.find({
+                $or: [{ userId: queries.userId }, { category: queries.category },
+             { subcategory: queries.subcategory }]
+            }).find({ isDeleted: false}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1});
             if (data1.length == 0) {
-                return res.status(404).send({ status: "false", message: "Sorry,Requested Data not Found." })
+                return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
             } else {
-                data1.sort((a, b) => a.title.localeCompare(b.title))
                 return res.status(200).send({ status: true, message: data1 });
             }
         }
     } catch (error) {
-        return res.status(500).send({ msg: error.message })
+        return res.status(500).send({ message: error.message })
     }
 }
 
 
-
-
-
-
-
-
-
-
 module.exports.createBooks = createBooks
 module.exports.getBooks = getBooks
+
+// const getBooks = async function (req, res) {
+//     try {
+//         const queries = req.query;
+
+//         if (Object.keys(queries).length == 0) {
+
+//             let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+//             if (data.length == 0) {
+//                 return res.status(404).send({ status: "false", message: "Sorry, Requested Data not Found." })
+//             } else {
+//                 data.sort((a, b) => a.title.localeCompare(b.title))
+//                 return res.status(200).send({ status: true, message: data });
+//             }
+//         } else {
+//             const { userId, category, subcategory } = queries
+//             let obj = {
+//                 isDeleted: false
+
+//             }
+//             if (userId) obj.userId = userId
+//             if (category) obj.category = category
+//             if (subcategory) obj.subcategory = subcategory
+//             let data1 = await bookModel.find(obj).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+//             if (data1.length == 0) {
+//                 return res.status(404).send({ status: "false", message: "Sorry,Requested Data not Found." })
+//             } else {
+//                 data1.sort((a, b) => a.title.localeCompare(b.title))
+//                 return res.status(200).send({ status: true, message: data1 });
+//             }
+//         }
+//     } catch (error) {
+//         return res.status(500).send({ msg: error.message })
+//     }
+// }
+
+
+
+
+
 
