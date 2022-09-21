@@ -9,10 +9,6 @@ const isValid = function (value) {
     if (typeof (value) === "string" && value.trim().length > 0) { return true }
 }
 
-const isValidRequest = function (object) {
-    return Object.keys(object).length > 0
-  }
-
 const isValidEmail = function (value) {
     const regexForEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     return regexForEmail.test(value)
@@ -36,7 +32,7 @@ const regixValidator = function (value) {
 const createuser = async function (req, res) {
     try{
         let data = req.body
-        if (!isValidRequest(data)) { return res.status(400).send({ status: false, message: "user data is required" })}
+        if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "user data is required" })}
     const { title, name, phone, email, password } = data;
     if (Object.keys(data).length > 6) {
         return res.status(400).send({ status: false, message: "invalid data entry inside request body" })
@@ -61,8 +57,13 @@ const createuser = async function (req, res) {
 
       if (!isValid(password)) { return res.status(400).send({ status: false, message: "Password is required"}) }
       if (!isValidPassword(password)) { return res.status(400).send({ status: false, message: "Password should be in right format" }) }
-
-      const newUser = await userModel.create(data);
+      let obj ={title : title.trim(), 
+        name: name.trim(), 
+        phone: phone.trim(), 
+        email: email.trim(), 
+        password: password.trim()
+}
+      const newUser = await userModel.create(obj);
       return res.status(201).send({ status: true, message: 'New User created successfully', data: newUser })
       
      }
@@ -96,9 +97,9 @@ const login = async function (req,res) {
          //creating a jsonWebToken and sending it to responce header and body
 
          let token = jwt.sign({
-            userId: userName._id.toString()
+            userId: user._id.toString()
           },
-            "group14project3"
+            "group14project3", { expiresIn : "24"}
           );
       
           res.header("x-api-key", token);
