@@ -102,7 +102,7 @@ const getBooks = async function (req, res) {
 const getBookById=async function(req,res){
     try{
         let id =req.params.getBookById
-        let book=await bookModel.findById(id)
+        let book= await bookModel.findById(id)
         if (!book || book.isDeleted===true){
             return res.status(404).send({
                 status:false,
