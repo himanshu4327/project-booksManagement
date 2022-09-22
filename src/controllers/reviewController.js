@@ -7,8 +7,6 @@ const isValid = function (value) {
     return false;
   };
   
-
-
   const isValidObjectId = function (objectId) {
     return /^[0-9a-fA-F]{24}$/.test(objectId)
 }
