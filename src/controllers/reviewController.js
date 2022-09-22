@@ -1,5 +1,5 @@
-const bookModel = require("../models/bookModel")
-const reviewModel = require("../models/reviewModel")
+const bookModel = require("../Models/bookModel")
+const reviewModel = require("../Models/reviewModel")
 
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;

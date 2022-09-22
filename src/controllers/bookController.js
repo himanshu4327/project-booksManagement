@@ -1,5 +1,6 @@
-const userModel = require("../models/userModel")
-const bookModel = require('../models/bookModel')
+const userModel = require("../Models/userModel")
+const bookModel = require('../Models/bookModel')
+const reviewModel = require('../Models/reviewModel')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Validation Function>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -75,21 +76,21 @@ const getBooks = async function (req, res) {
         const queries = req.query;
         if (Object.keys(queries).length == 0) {
 
-            let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
-            if (data.length == 0) {
-                return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
+            let booksDocuments = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
+            if (booksDocuments.length == 0) {
+                return res.status(404).send({ status: false, message: "Sorry, Required books Documents not Found." })
             } else {
-                return res.status(200).send({ status: true, message: data });
+                return res.status(200).send({ status: true, message: booksDocuments });
             }
         } else {
-            let data1 = await bookModel.find({
+            let booksDocuments = await bookModel.find({
                 $or: [{ userId: queries.userId }, { category: queries.category },
                 { subcategory: queries.subcategory }]
             }).find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 });
-            if (data1.length == 0) {
-                return res.status(404).send({ status: "false", message: "Sorry,Data not Found." })
+            if (booksDocuments.length == 0) {
+                return res.status(404).send({ status: false, message: "Sorry, Required books Documents not Found." })
             } else {
-                return res.status(200).send({ status: true, message: data1 });
+                return res.status(200).send({ status: true, message: booksDocuments });
             }
         }
     } catch (error) {
@@ -106,22 +107,24 @@ const getBooks = async function (req, res) {
 // - If no documents are found then return an HTTP status 404 with a response like [this](#error-response-structure) 
 
 
-const getBookById=async function(req,res){
-    try{
-        let bookId =req.params.bookId;
-        let bookDocument= await bookModel.findById(bookId)
-        if (!bookDocument || bookDocument.isDeleted===true){
+const getBookById = async function (req, res) {
+    try {
+        let bookId = req.params.bookId;
+        let bookDocument = await bookModel.findById({ _id: bookId }).select({ ISBN: 0, deletedAt: 0 })
+        if (!bookDocument || bookDocument.isDeleted === true) {
             return res.status(404).send({
-                status:false,
-                message:"book not found"
+                status: false,
+                message: "books Documents not found"
             })
         }
-        let review = await reviewModel.find({bookId:id})
-        let result = book._doc
-        result.reviewData= review
-        return res.status(200).send({status:true,message:"sucessful",data:result})
-    }catch{
-        return res.status(500).send({message:err.message})
+        let review = await reviewModel.find({ bookId }).select({ bookId: 1, reviewedBy: 1, reviewedAt: 1, rating: 1, review: 1 })
+        let result = {
+            bookDocument,
+            reviewsData: review
+        };
+        return res.status(200).send({ status: true, message: "Books list", data: result })
+    } catch (error) {
+        return res.status(500).send({ message: error.message })
     }
 }
 
@@ -166,13 +169,12 @@ const Booksupdate = async function (req, res) {
 // If the book document doesn't exist then return an HTTP status of 404 with a body like this
 
 
-const deleteBooksbyId =async function(req,res)
-{
+const deleteBooksbyId = async function (req, res) {
     try {
         let bookId = req.params.bookId
-        let bookDocument = await bookModel.findById({_id: bookId})
+        let bookDocument = await bookModel.findById({ _id: bookId })
         if (!bookDocument) return res.status(404).send({ status: false, message: "Book document does not exists" })
-       
+
         if (bookDocument.isDeleted == true) return res.status(404).send({ status: false, msg: "Book document is already deleted" })
         await bookModel.findOneAndUpdate({ _id: bookId },
             {
@@ -191,9 +193,9 @@ const deleteBooksbyId =async function(req,res)
 
 module.exports.createBooks = createBooks
 module.exports.getBooks = getBooks
-module.exports.getBookById=getBookById
+module.exports.getBookById = getBookById
 module.exports.Booksupdate = Booksupdate
-module.exports.deleteBooksbyId=deleteBooksbyId
+module.exports.deleteBooksbyId = deleteBooksbyId
 
 
 //--------------------------------------------------------//----------------------------------------------------------//
