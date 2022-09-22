@@ -1,5 +1,6 @@
 const bookModel = require("../Models/bookModel")
 const reviewModel = require("../Models/reviewModel")
+const moment = require('moment');
 
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
@@ -9,49 +10,105 @@ const isValid = function (value) {
   
   const isValidObjectId = function (objectId) {
     return /^[0-9a-fA-F]{24}$/.test(objectId)
+  }
+
+
+const createReview = async (req, res) => {
+  try{
+
+          let bookId= req.params.bookId
+          let data = req.body
+          if(Object.keys(data).length==0){
+              return res.status(400).send({status: false,msg:"Please Enter Some Data in request body"})
+          }
+          data['bookId']=bookId
+          
+          if(!bookId){
+              return res.status(400).send({status: false,msg:"Please Enter BookId"})
+          }
+          if(!isValidObjectId(bookId)){
+              return res.status(400).send({status: false,msg:"Invalid BookId"})
+          }
+          let allbooks = await bookModel.findById(bookId)
+          if(!allbooks){return res.status(404).send({status:false,msg:"No Book Found"})}
+          if(allbooks['isDeleted']===true){return res.status(400).send({status:false,msg:"Book is Deleted"})}
+      
+          if(!data.rating){
+              return res.status(400).send({status: false,msg:"Please Enter some rating"})
+
+          }
+          if(isValid(data.rating)){
+              return res.status(400).send({status: false,msg:"Please Enter Only Number in rating"})
+
+          }
+          if(data.rating<1 || data.rating>5){
+              return res.status(400).send({status: false,msg:"Please Enter rating b/w 1 to 5"})}
+          
+              if(!data.reviewedBy){
+              let reviewedBy = "Guest"
+              data['reviewedby'] = reviewedBy
+          }
+          if(!data.review){
+              return res.status(400).send({status: false,msg:"Please write the review on Book"})
+          }
+
+          let date = Date.now()
+          let reviewedAt = moment(date).format("YYYY-MM-DD, hh:mm:ss")
+          data['reviewedAt'] = reviewedAt
+
+          const reviewes = await reviewModel.create(data)
+          const bookReviwes = await bookModel.findOneAndUpdate({_id:data.bookId},{$inc:{reviews:+1}},{new:true})
+
+          let result = bookReviwes.toObject()
+          result.reviewData = reviewes
+          return res.status(201).send({status:true, msg:"Reviewes Added Succesfully",data:result})
+      
+  }catch(err){
+      res.status(500).send({ status: false, message: err.message });
+  }
 }
 
-const createReview = async function (req, res) {
-  try {
-      let data = req.body;
-      let id = req.params.bookId;
-      const { bookId, rating } = data
 
-      if (!isValidObjectId(id)) { return res.status(400).send({ status: false, message: 'please Enter a valid id in path params' }) }
+//const createReview = async function (req, res) {
+  //try {
+   // let bookId = req.params.bookId
+    //let data = req.body
+    //if (Object.keys(data).length == 0) {
+      //return res.status(400).send({ status: false, msg: "Please Provide Some Data" })
+    //}
 
-      if (id != bookId) { return res.status(400).send({ status: false, message: 'Please Enter same bookId in body and path params' }) }
+    //data['bookId'] = bookId
+    //if (!bookId) {
+      //return res.status(400).send({ status: false, msg: "Please Provide BookId" })
+    //}
 
-      let allbooks = await bookModel.findById(id);
-      if (!allbooks) { return res.status(404).send({ status: false, message: 'No book found with given id, please Enter valid id' }) }
+    //if (!isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: 'please Enter a valid book id' }) }
 
-      let isDeleted = allbooks.isDeleted;
-      if (isDeleted == true) { return res.status(404).send({ status: false, message: 'Book is deleted, can not find book' }) }
+    //let allbooks = await bookModel.findById(bookId);
+    //if (!allbooks) { return res.status(404).send({ status: false, message: 'No Book Found' }) }
 
-      if (Object.keys(data) == 0) { return res.status(400).send({ status: false, message: 'No input provided' }) }
+    //let isDeleted = allbooks.isDeleted;
+    //if (isDeleted == true) { return res.status(404).send({ status: false, message: 'Book is deleted, can not find book' }) }
 
-      if (!isValid(bookId)) { return res.status(400).send({ status: false, message: 'Book Id is required' }) }
+    //let AllBooks = await bookModel.findById(bookId);
+    //if (!AllBooks) { return res.status(404).send({ status: false, message: 'this id is not exist, please Enter a valid book Id' }) }
 
-      if (!isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: 'Please Enter a valid Book Id' }) }
+    //if (!isValid(rating)) { return res.status(400).send({ status: false, message: "Rating is required" }) }
 
-      let AllBooks = await bookModel.findById(bookId);
-      if (!AllBooks) { return res.status(404).send({ status: false, message: 'this id is not exist, please Enter a valid book Id' }) }
+    //if (rating < 1 || rating > 5) { return res.status(400).send({ status: false, message: "please Enter rating b/w 1 to 5" }) }
 
-      if (!isValid(rating)) { return res.status(400).send({ status: false, message: "Rating is required" }) }
+    //data.reviewedAt = new Date();
 
-      if (rating < 1 || rating > 5) { return res.status(400).send({ status: false, message: "please Enter rating b/w 1 to 5" }) }
+    //const updatedBook = await bookModel.findOneAndUpdate({ _id: data.bookId }, { $inc: { reviews: +1 } }, { new: true })
 
-      data.reviewedAt = new Date();
+    //const reviews = await reviewModel.create(data);
+    //return res.status(201).send({ status: true, message: 'success', data: { ...updatedBook.toObject(), reviewsData: reviews } })
 
-      const updatedBook = await bookModel.findOneAndUpdate({ _id: id }, { $inc: { reviews: +1 } }, { new: true })
-
-      const reviews = await reviewModel.create(data);
-      return res.status(201).send({ status: true, message: 'success', data: { ...updatedBook.toObject(), reviewsData: reviews } })
-
-  }
-  catch (error) {
-      return res.status(500).send({ status: false, message: error.message })
-  }
-}
+  //}
+  //catch (error) {
+    //return res.status(500).send({ status: false, message: error.message })
+  //}
+//}
 
 
 
