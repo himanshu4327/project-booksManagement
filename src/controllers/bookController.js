@@ -97,8 +97,63 @@ const getBooks = async function (req, res) {
     }
 }
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get BookbyId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+const getBookById=async function(req,res){
+    try{
+        let id =req.params.getBookById
+        let book=await bookModel.findById(id)
+        if (!book || book.isDeleted===true){
+            return res.status(404).send({
+                status:false,
+                message:"book not found"
+            })
+        }
+        let review = await reviewModel.find({bookId:id})
+        let result = book._doc
+        result.reviewData= review
+        return res.status(200).send({status:true,message:"sucessful",data:result})
+    }catch{
+        return res.status(500).send({message:err.message})
+    }
+}
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Delete BooksbyId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// # DELETE /books/:bookId
+// Check if the bookId exists and is not deleted. If it does, mark it deleted and return an HTTP status 200 with a response body with status and message.
+// If the book document doesn't exist then return an HTTP status of 404 with a body like this
 
 
+const deleteBooksbyId =async function(req,res)
+{
+    try {
+        let bookId = req.params.bookId
+        let bookDocument = await bookModel.findById({_id: bookId})
+        if (!bookDocument) return res.status(404).send({ status: false, message: "Book document does not exists" })
+       
+        if (bookDocument.isDeleted == true) return res.status(404).send({ status: false, msg: "Book document is already deleted" })
+        await bookModel.findOneAndUpdate({ _id: bookId },
+            {
+                $set: { isDeleted: true, deletedAt: new Date() }
+            }
+        )
+        res.status(200).send({ message: "Deleted" })
+    } catch (error) {
+        return res.status(500).send({ message: error.message });
+    }
+}
+
+
+
+
+
+module.exports.createBooks = createBooks
+module.exports.getBooks = getBooks
+module.exports.getBookById=getBookById
+module.exports.deleteBooksbyId=deleteBooksbyId
+
+
+//--------------------------------------------------------//----------------------------------------------------------//
 // const getBooks = async function (req, res) {
 //     try {
 //         const queries = req.query;
@@ -133,30 +188,9 @@ const getBooks = async function (req, res) {
 //         return res.status(500).send({ msg: error.message })
 //     }
 // }
-const getBookById=async function(req,res){
-    try{
-        let id =req.params.getBookById
-        let book=await bookModel.findById(id)
-        if (!book || book.isDeleted===true){
-            return res.status(404).send({
-                status:false,
-                message:"book not found"
-            })
-        }
-        let review = await reviewModel.find({bookId:id})
-        let result = book._doc
-        result.reviewData= review
-        return res.status(200).send({status:true,message:"sucessful",data:result})
-    }catch{
-        return res.status(500).send({message:err.message})
-    }
-}
 
 
 
-module.exports.createBooks = createBooks
-module.exports.getBooks = getBooks
-module.exports.getBookById=getBookById
 
 
 

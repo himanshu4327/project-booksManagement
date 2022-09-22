@@ -11,6 +11,7 @@ router.post("/login", userController.login)
 router.post("/books", bookController.createBooks )
 router.get("/books", bookController.getBooks)
 router.get("/books/:bookId", bookController.getBookById)
+router.delete("/books/:bookId",bookController.deleteBooksbyId)
 
 router.all("/*",(req,res)=>{res.status(404).send({status:false,message:"Endpoint is not correct"})})
 
