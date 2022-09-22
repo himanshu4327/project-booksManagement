@@ -98,8 +98,6 @@ const getBooks = async function (req, res) {
 }
 
 
-module.exports.createBooks = createBooks
-module.exports.getBooks = getBooks
 
 // const getBooks = async function (req, res) {
 //     try {
@@ -135,8 +133,30 @@ module.exports.getBooks = getBooks
 //         return res.status(500).send({ msg: error.message })
 //     }
 // }
+const getBookById=async function(req,res){
+    try{
+        let id =req.params.getBookById
+        let book=await bookModel.findById(id)
+        if (!book || book.isDeleted===true){
+            return res.status(404).send({
+                status:false,
+                message:"book not found"
+            })
+        }
+        let review = await reviewModel.find({bookId:id})
+        let result = book._doc
+        result.reviewData= review
+        return res.status(200).send({status:true,message:"sucessful",data:result})
+    }catch{
+        return res.status(500).send({message:err.message})
+    }
+}
 
 
+
+module.exports.createBooks = createBooks
+module.exports.getBooks = getBooks
+module.exports.getBookById=getBookById
 
 
 

@@ -10,6 +10,8 @@ router.post("/register", userController.createuser)
 router.post("/login", userController.login)
 router.post("/books", bookController.createBooks )
 router.get("/books", bookController.getBooks)
+router.get("/books/:bookId", bookController.getBookById)
+
 router.all("/*",(req,res)=>{res.status(404).send({status:false,message:"Endpoint is not correct"})})
 
 module.exports = router;
