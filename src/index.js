@@ -7,7 +7,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb+srv://omkar077:BeEHI8wSohCTOfTl@cluster0.tyx7riv.mongodb.net/DB4",
+mongoose.connect("mongodb+srv://omkar077:BeEHI8wSohCTOfTl@cluster0.tyx7riv.mongodb.net/group14Database",
 
     {
         useNewUrlParser: true  //you should set useNewUrlparser :true unless to prevent from connecting.
