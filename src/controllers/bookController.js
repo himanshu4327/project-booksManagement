@@ -125,6 +125,41 @@ const getBookById=async function(req,res){
     }
 }
 
+
+
+
+
+
+const Booksupdate = async function (req, res) {
+    try {
+        let book_Id = req.params.bookId
+        if (!isValidObjectId(book_Id)) { return res.status(400).send({ status: false, message: 'please Enter a valid id' }) }
+        let data = req.body
+
+        if (Object.keys(book_Id) == 0) return res.status(400).send({ status: false, message: "please Enter a required book_Id" })
+
+        if (Object.keys(data) == 0) { return res.status(400).send({ status: false, message: 'please provided data' }) }
+
+        let book = await bookModel.findById(book_Id)
+        if (!book) return res.status(404).send({ status: false, message: "Book does not exists" })
+
+        let is_Deleted = book.isDeleted
+        if (is_Deleted == true) return res.status(404).send({ status: false, message: "no Book with this Id or Book is already deleted" })
+
+        let isTitleUnique = await bookModel.findOne({ title: data.title })
+        if (isTitleUnique) { return res.status(400).send({ status: false, message: 'Title already exist, Please provide a unique title' }) }
+
+        let isISBNUnique = await bookModel.findOne({ ISBN: data.ISBN })
+        if (isISBNUnique) { return res.status(400).send({ status: false, message: 'ISBN already exist, Please provide a unique ISBN' }) }
+
+
+        let updatedBook = await bookModel.findOneAndUpdate({ _id: book_Id }, { ...data }, { new: true })
+        return res.status(202).send({ status: true, message: 'Success', data: updatedBook })
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Delete BooksbyId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // # DELETE /books/:bookId
 // Check if the bookId exists and is not deleted. If it does, mark it deleted and return an HTTP status 200 with a response body with status and message.
@@ -157,6 +192,7 @@ const deleteBooksbyId =async function(req,res)
 module.exports.createBooks = createBooks
 module.exports.getBooks = getBooks
 module.exports.getBookById=getBookById
+module.exports.Booksupdate = Booksupdate
 module.exports.deleteBooksbyId=deleteBooksbyId
 
 
