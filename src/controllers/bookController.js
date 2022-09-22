@@ -100,12 +100,6 @@ const getBooks = async function (req, res) {
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get BookbyId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-// ### GET /books/:bookId
-// - Returns a book with complete details including reviews. Reviews array would be in the form of Array. Response example [here](#book-details-response)
-// - Return the HTTP status 200 if any documents are found. The response structure should be like [this](#successful-response-structure) 
-// - If the book has no reviews then the response body should include book detail as shown [here](#book-details-response-no-reviews) and an empty array for reviewsData.
-// - If no documents are found then return an HTTP status 404 with a response like [this](#error-response-structure) 
-
 
 const getBookById = async function (req, res) {
     try {
@@ -129,8 +123,7 @@ const getBookById = async function (req, res) {
 }
 
 
-
-
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Update Book Document>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 const Booksupdate = async function (req, res) {
