@@ -6,7 +6,8 @@ const bookSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
+      lowercase:true
     },
     excerpt: {
       type: String,
@@ -31,7 +32,7 @@ const bookSchema = new mongoose.Schema(
       trim: true
     },
     subcategory: {
-      type: String,
+      type:[String],
       required: true
     },
     reviews: {
