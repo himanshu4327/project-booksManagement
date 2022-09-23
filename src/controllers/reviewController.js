@@ -2,6 +2,8 @@ const bookModel = require("../Models/bookModel")
 const reviewModel = require("../Models/reviewModel")
 const moment = require('moment');
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Validation>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 const isValid = function (value) {
   if (typeof value === "undefined" || value === null) return false;
   if (typeof value === "string" && value.trim().length > 0) return true;
@@ -20,6 +22,14 @@ const isValidName = function (value) {
     return true;
   return false;
 };
+
+const isValidRequestBody = function (requestbody) {
+  return Object.keys(requestbody).length > 0
+}
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Create Review>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 
 const createReview = async (req, res) => {
   try {
@@ -49,7 +59,7 @@ const createReview = async (req, res) => {
       return res.status(400).send({ status: false, msg: "Please Enter Only Number in rating" })
 
     }
-    if (data.rating < 1 || data.rating > 5) {
+    if (data.rating < 1 || data.rating > 5 || !isValidrating(data.rating)) {
       return res.status(400).send({ status: false, msg: "Please Enter rating b/w 1 to 5" })
     }
 
@@ -76,6 +86,8 @@ const createReview = async (req, res) => {
     res.status(500).send({ status: false, message: err.message });
   }
 }
+
+
 
 
 //const createReview = async function (req, res) {
@@ -119,6 +131,11 @@ const createReview = async (req, res) => {
 //}
 //}
 
+// ### PUT /books/:bookId/review/:reviewId
+// - Update the review - review, rating, reviewer's name.
+// - Check if the bookId exists and is not deleted before updating the review. Check if the review exist before updating the review. Send an error response with appropirate status code like [this](#error-response-structure) if the book does not exist
+// - Get review details like review, rating, reviewer's name in request body.
+// - Return the updated book document with reviews data on successful operation. The response body should be in the form of JSON object like [this](#book-details-response)
 
 const updateReviewByID = async function (req, res) {
   try {
@@ -126,9 +143,9 @@ const updateReviewByID = async function (req, res) {
     if (!isValidObjectId(bookId)) {
       return res.status(404).send({ status: false, msg: " Invalid bookId" });
     }
-    let validBook = await bookModel.findById(bookId);
+    let validBook = await bookModel.findById(bookId).select({ ISBN: 0, deletedAt: 0 });
     if (!validBook || validBook.isDeleted == true) {
-      return res.status(404).send({ status: false, message: "book not found" });
+      return res.status(404).send({ status: false, message: "book not found OR deleted already" });
     }
     let reviewId = req.params.reviewId;
     if (!isValidObjectId(reviewId)) {
@@ -138,28 +155,31 @@ const updateReviewByID = async function (req, res) {
     let validReview = await reviewModel.findOne({ _id: reviewId, bookId: bookId });
     if (!validReview || validReview.isDeleted == true) {
 
-      return res.status(404).send({ status: false, message: "Review not found" });
+      return res.status(404).send({ status: false, message: "Review not found OR deleted already" });
     }
 
-    const { review, rating, reviewedBy } = req.body;
+    const { rating, review, reviewedBy } = req.body;
     if (!isValidRequestBody(req.body)) {
       return res.status(400).send({ status: false, msg: "Provide Details for update" });
     }
-    if (rating) {
-      if (!(rating >= 1 && rating <= 5)) {
-        return res.status(400).send({ status: false, msg: " Provide rating between 1 - 5" });
-      }
+
+    if (isValid(rating)) {
+      return res.status(400).send({ status: false, msg: "Please Enter Only Number in rating" })
     }
-    if (reviewedBy) {
-      if (!isValidName(reviewedBy)) {
-        return res.status(400).send({ status: false, msg: " provide proper name for reviewedBy" });
-      }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).send({ status: false, msg: "Please Enter rating b/w 1 to 5 AND no decimal value accepted" });
     }
-    if (review) {
-      if (!isValid(review)) {
-        return res.status(400).send({ status: false, msg: "review must be string" });
-      }
+
+    if (!review) {
+      return res.status(400).send({ status: false, msg: "Provide review " });
     }
+
+    if (!reviewedBy) {
+      return res.status(400).send({ status: false, msg: " provide proper name for reviewedBy" });
+    }
+
+
     let data = {};
     data.rating = rating;
     data.reviewedBy = reviewedBy;
@@ -168,18 +188,27 @@ const updateReviewByID = async function (req, res) {
     let updatedReview = await reviewModel.findOneAndUpdate(
       { _id: reviewId },
       data,
-      { new: true }
     );
+    let reviews=await reviewModel.find({bookId:bookId})
+
+    let result;
+    result ={
+     bookData:validBook,
+     reviewsData:reviews
+  }
+
+
     return res.status(200).send({
       status: true,
       message: "successfully updated",
-      data: updatedReview,
+      data: result
     });
   } catch (error) {
     return res.status(400).send({ status: false, msg: error.message });
   }
 };
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>delete review>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 const deleteReview = async (req, res) => {
   try{
@@ -216,6 +245,7 @@ const deleteReview = async (req, res) => {
   }
 }
 
+//....................................................................................................................//
 
 module.exports.createReview = createReview
 module.exports.updateReviewByID = updateReviewByID

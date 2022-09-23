@@ -118,7 +118,7 @@ const getBookById = async function (req, res) {
         };
         return res.status(200).send({ status: true, message: "Books list", data: result })
     } catch (error) {
-        return res.status(500).send({ message: error.message })
+        return res.status(500).send({ status:false, message: error.message })
     }
 }
 
