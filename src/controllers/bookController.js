@@ -165,6 +165,7 @@ const Booksupdate = async function (req, res) {
 const deleteBooksbyId = async function (req, res) {
     try {
         let bookId = req.params.bookId
+        if (!isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: 'please Enter a valid id' }) }
         let bookDocument = await bookModel.findById({ _id: bookId })
         if (!bookDocument) return res.status(404).send({ status: false, message: "Book document does not exists" })
 
