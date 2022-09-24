@@ -27,6 +27,9 @@ const isValidRequestBody = function (requestbody) {
   return Object.keys(requestbody).length > 0
 }
 
+const isValidRating =  function(rating){
+  return (/^\s*([1-5]){1}\s*$/.test(rating))
+}
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Create Review>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -59,8 +62,8 @@ const createReview = async (req, res) => {
       return res.status(400).send({ status: false, msg: "Please Enter Only Number in rating" })
 
     }
-    if (data.rating < 1 || data.rating > 5 || !isValidrating(data.rating)) {
-      return res.status(400).send({ status: false, msg: "Please Enter rating b/w 1 to 5" })
+    if (data.rating < 1 || data.rating > 5 || !isValidRating(data.rating)) {
+      return res.status(400).send({ status: false, msg: "Rating must be greater than equal to 1 and less than equal to 5  AND not allowed rating in decimal." })
     }
 
     if (!data.reviewedBy) {
@@ -88,20 +91,14 @@ const createReview = async (req, res) => {
 }
 
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>UpdateReview>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
-
-// ### PUT /books/:bookId/review/:reviewId
-// - Update the review - review, rating, reviewer's name.
-// - Check if the bookId exists and is not deleted before updating the review. Check if the review exist before updating the review. Send an error response with appropirate status code like [this](#error-response-structure) if the book does not exist
-// - Get review details like review, rating, reviewer's name in request body.
-// - Return the updated book document with reviews data on successful operation. The response body should be in the form of JSON object like [this](#book-details-response)
 
 const updateReviewByID = async function (req, res) {
   try {
     let bookId = req.params.bookId;
     if (!isValidObjectId(bookId)) {
-      return res.status(404).send({ status: false, msg: " Invalid bookId" });
+      return res.status(404).send({ status: false, msg: "Invalid bookId" });
     }
     let validBook = await bookModel.findById(bookId).select({ ISBN: 0, deletedAt: 0 });
     if (!validBook || validBook.isDeleted == true) {
@@ -127,8 +124,8 @@ const updateReviewByID = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Please Enter Only Number in rating" })
     }
 
-    if (rating < 1 || rating > 5) {
-      return res.status(400).send({ status: false, msg: "Please Enter rating b/w 1 to 5 " });
+    if (rating < 1 || rating > 5 || !isValidRating) {
+      return res.status(400).send({ status: false, msg: "Rating must be greater than equal to 1 and less than equal to 5  AND not allowed rating in decimal."});
     }
 
     let updatedReview = await reviewModel.findOneAndUpdate(
@@ -147,6 +144,7 @@ const updateReviewByID = async function (req, res) {
 };
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>delete review>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 const deleteReview = async (req, res) => {
   try {
@@ -176,9 +174,9 @@ const deleteReview = async (req, res) => {
     const Reviewdeleted = await reviewModel.findOneAndUpdate({ _id: reviewId }, { isDeleted: true }, { new: true });
     await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: -1 } }, { new: true });
 
-    res.status(200).send({ status: true, message: "Review has been deleted successfully", data: Reviewdeleted });
+    res.status(200).send({ status:true, message: "Review has been deleted successfully" });
   }
-  catch (err) {
+  catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }
 }

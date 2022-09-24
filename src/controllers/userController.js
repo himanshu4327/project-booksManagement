@@ -109,12 +109,12 @@ const login = async function (req, res) {
         const user = await userModel.findOne({ email: userName, password: password });
         if (!user) { return res.status(404).send({ status: false, message: "no user found " }) }
 
-        //creating a jsonWebToken and sending it to responce header and body
+        //......................creating a jsonWebToken and sending it to responce header and body.....................//
 
         let token = jwt.sign({
             userId: user._id.toString()
         },
-            "group14project3", { expiresIn: "500s" }
+            "group14project3", { expiresIn: "1hr" }
         );
 
         res.header("x-api-key", token);

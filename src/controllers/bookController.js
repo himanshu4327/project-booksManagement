@@ -104,6 +104,7 @@ const getBooks = async function (req, res) {
 const getBookById = async function (req, res) {
     try {
         let bookId = req.params.bookId;
+        if(Object.keys(bookId).length==0){return res.status(400).send({status:false,msg:"invalid request"})}
         let bookDocument = await bookModel.findById({ _id: bookId }).select({ ISBN: 0, deletedAt: 0 })
         if (!bookDocument || bookDocument.isDeleted === true) {
             return res.status(404).send({
@@ -150,21 +151,19 @@ const Booksupdate = async function (req, res) {
 
 
         let updatedBook = await bookModel.findOneAndUpdate({ _id: book_Id }, { ...data }, { new: true })
-        return res.status(202).send({ status: true, message: 'Success', data: updatedBook })
+        return res.status(200).send({ status: true, message: 'Success', data: updatedBook })
     }
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Delete BooksbyId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// # DELETE /books/:bookId
-// Check if the bookId exists and is not deleted. If it does, mark it deleted and return an HTTP status 200 with a response body with status and message.
-// If the book document doesn't exist then return an HTTP status of 404 with a body like this
 
 
 const deleteBooksbyId = async function (req, res) {
     try {
         let bookId = req.params.bookId
+        if (!isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: 'please Enter a valid id' }) }
         let bookDocument = await bookModel.findById({ _id: bookId })
         if (!bookDocument) return res.status(404).send({ status: false, message: "Book document does not exists" })
 
@@ -182,51 +181,11 @@ const deleteBooksbyId = async function (req, res) {
 
 
 
-
-
 module.exports.createBooks = createBooks
 module.exports.getBooks = getBooks
 module.exports.getBookById = getBookById
 module.exports.Booksupdate = Booksupdate
 module.exports.deleteBooksbyId = deleteBooksbyId
-
-
-//--------------------------------------------------------//----------------------------------------------------------//
-// const getBooks = async function (req, res) {
-//     try {
-//         const queries = req.query;
-
-//         if (Object.keys(queries).length == 0) {
-
-//             let data = await bookModel.find({ isDeleted: false }).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
-//             if (data.length == 0) {
-//                 return res.status(404).send({ status: "false", message: "Sorry, Requested Data not Found." })
-//             } else {
-//                 data.sort((a, b) => a.title.localeCompare(b.title))
-//                 return res.status(200).send({ status: true, message: data });
-//             }
-//         } else {
-//             const { userId, category, subcategory } = queries
-//             let obj = {
-//                 isDeleted: false
-
-//             }
-//             if (userId) obj.userId = userId
-//             if (category) obj.category = category
-//             if (subcategory) obj.subcategory = subcategory
-//             let data1 = await bookModel.find(obj).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
-//             if (data1.length == 0) {
-//                 return res.status(404).send({ status: "false", message: "Sorry,Requested Data not Found." })
-//             } else {
-//                 data1.sort((a, b) => a.title.localeCompare(b.title))
-//                 return res.status(200).send({ status: true, message: data1 });
-//             }
-//         }
-//     } catch (error) {
-//         return res.status(500).send({ msg: error.message })
-//     }
-// }
-
 
 
 
