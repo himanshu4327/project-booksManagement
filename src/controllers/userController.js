@@ -63,7 +63,7 @@ const createuser = async function (req, res) {
         if (!isValidPassword(password)) { return res.status(400).send({ status: false, message: "Password should be in right format" }) }
 
         if (address) {
-            if (!isValid(address.street)) { return res.status(400).send({ status: false, message: "invalid city" }) }
+            if (!isValid(address.street)) { return res.status(400).send({ status: false, message: "invalid street" }) }
             if (!isValid(address.city) || !isNameValid(address.city)) { return res.status(400).send({ status: false, message: "invalid city" }); }
             if (! /^\+?([1-9]{1})\)?([0-9]{5})$/.test(address.pincode) && !isValid(address.pincode)) { return res.status(400).send({ status: false, message: "invalid pin" }) }
 
