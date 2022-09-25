@@ -13,15 +13,6 @@ const isValid = function (value) {
 const isValidObjectId = function (objectId) {
   return /^[0-9a-fA-F]{24}$/.test(objectId)
 }
-const isValidName = function (value) {
-  if (
-    typeof value === "string" &&
-    value.trim().length > 0 &&
-    /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(value)
-  )
-    return true;
-  return false;
-};
 
 const isValidRequestBody = function (requestbody) {
   return Object.keys(requestbody).length > 0
