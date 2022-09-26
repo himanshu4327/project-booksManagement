@@ -107,7 +107,7 @@ const login = async function (req, res) {
         if (!isValidPassword(password)) { return res.status(400).send({ status: false, message: "Password should be in right format" }) }
 
         const user = await userModel.findOne({ email: userName, password: password });
-        if (!user) { return res.status(404).send({ status: false, message: "no user found " }) }
+        if (!user) { return res.status(401).send({ status: false, message: "no user found " }) }
 
         //......................creating a jsonWebToken and sending it to responce header and body.....................//
 
