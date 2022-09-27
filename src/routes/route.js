@@ -12,7 +12,7 @@ router.post("/register", userController.createuser)
 router.post("/login", userController.login)
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>API's for books >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-router.post("/books", mw.authentication, mw.authorisation, bookController.createBooks)
+router.post("/books", mw.authentication, bookController.createBooks)
 router.get("/books",  mw.authentication, bookController.getBooks)
 router.get("/books/:bookId", mw.authentication, bookController.getBookById)
 router.put("/books/:bookId", mw.authentication, mw.authorisation, bookController.Booksupdate)
