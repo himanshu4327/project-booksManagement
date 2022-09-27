@@ -70,11 +70,11 @@ const createuser = async function (req, res) {
         }
 
         let obj = {
-            title: title.trim(),
-            name: name.trim(),
-            phone: phone.trim(),
-            email: email.trim(),
-            password: password.trim(),
+            title: title,
+            name: name,
+            phone: phone,
+            email: email,
+            password: password,
             address: address
         }
         const newUser = await userModel.create(obj);
@@ -112,7 +112,8 @@ const login = async function (req, res) {
         //......................creating a jsonWebToken and sending it to responce header and body.....................//
 
         let token = jwt.sign({
-            userId: user._id.toString()
+            userId: user._id.toString(),
+            iat:Math.floor(Date.now()/1000)
         },
             "group14project3", { expiresIn: "1hr" }
         );
